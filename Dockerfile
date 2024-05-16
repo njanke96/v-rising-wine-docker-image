@@ -4,25 +4,19 @@ USER root
 
 RUN apt-get update -y
 
-RUN apt-get install wine -y
-
-RUN apt-get install gettext-base -y
-
-RUN apt-get install xvfb -y
-
-RUN apt-get install x11-utils -y
-
-RUN apt-get install procps -y
-
-RUN apt-get install tini -y
+RUN apt-get install wine \
+   gettext-base \
+   xvfb \
+   x11-utils \
+   procps \
+   tini \
+   -y
 
 RUN dpkg --add-architecture i386 && apt-get update && apt-get install wine32 -y
-
 RUN apt-get install winbind -y
 
-RUN mkdir /saves
-
-RUN chown steam /saves
+RUN mkdir /data
+RUN chown steam /data
 
 ENV DISPLAY=:99
 
@@ -32,52 +26,51 @@ USER steam
 
 RUN ./steamcmd.sh +@sSteamCmdForcePlatformType windows +login anonymous +app_update 1829350 validate +quit
 
-ENV V_RISING_MAX_HEALTH_MOD=1.0
-ENV V_RISING_MAX_HEALTH_GLOBAL_MOD=1.0
-ENV V_RISING_RESOURCE_YIELD_MOD=1.0
+# Not VR environment variables
+ENV V_RISING_AUTOUPDATE=true
 
-ENV V_RISING_DAY_DURATION_SECONDS=1080.0
-ENV V_RISING_DAY_START_HOUR=9
-ENV V_RISING_DAY_END_HOUR=17
+# VR environment variables for host settings
+# https://github.com/StunlockStudios/vrising-dedicated-server-instructions/blob/master/1.0.x/INSTRUCTIONS.md
+ENV VR_NAME="V Rising Server"
+ENV VR_DESCRIPTION="A V Rising server running in a Docker container"
+ENV VR_GAME_PORT=27015
+ENV VR_QUERY_PORT=27016
+ENV VR_ADDRESS="0.0.0.0"
+ENV VR_HIDEIPADDRESS=true
+ENV VR_MAX_USERS=32
+ENV VR_MAX_ADMINS=4
+ENV VR_FPS=30
+ENV VR_LOWER_FPS_WHEN_EMPTY=true
+ENV VR_LOWER_FPS_WHEN_EMPTY_VALUE=5
+ENV VR_PASSWORD="SuperSecret"
+ENV VR_SECURE=true
+ENV VR_LIST_ON_EOS=true
+ENV VR_LIST_ON_STEAM=true
+ENV VR_PRESET="StandardPvP"
+ENV VR_DIFFICULTY_PRESET="Difficulty_Normal"
+ENV VR_SAVE_NAME="world"
+ENV VR_SAVE_COUNT=20
+ENV VR_SAVE_INTERVAL=120
+ENV VR_AUTOSAVESMARTKEEP=""
+ENV VR_LAN_MODE=false
+ENV VR_RESET_DAYS_INTERVAL=0
+ENV VR_DAY_OF_RESET="Saturday"
 
-ENV V_RISING_TOMB_LIMIT=12
-ENV V_RISING_NEST_LIMIT=4
-
-ENV V_RISING_MAX_USER=40
-ENV V_RISING_MAX_ADMIN=4
-ENV V_RISING_DESC=""
-ENV V_RISING_PASSW=""
-ENV V_RISING_CLAN_SIZE=4
-ENV V_RISING_PORT=9876
-ENV V_RISING_QUERY_PORT=9877
-
-ENV V_RISING_SETTING_PRESET=""
-ENV V_RISING_DEATH_CONTAINER_PERMISSIONS="Anyone"
-ENV V_RISING_GAME_MODE="PvP"
-
-COPY ./templates /templates
+# RCON settings
+ENV VR_RCON_ENABLED=false
+ENV VR_RCON_PORT=25575
+ENV VR_RCON_PASSWORD="ExtraSecretPassword"
+ENV VR_RCON_BIND_ADDRESS="0.0.0.0"
 
 COPY entrypoint.sh /
-
 COPY launch_server.sh /
 
 USER root
 
-RUN chown -R steam /saves
+RUN chown -R steam /data
 
 RUN chmod +x /launch_server.sh
-
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 27020/udp
-EXPOSE 27020/tcp
-EXPOSE 27021/udp
-EXPOSE 27021/tcp
-EXPOSE 27022/udp
-EXPOSE 27022/tcp
-EXPOSE 27023/udp
-EXPOSE 27023/tcp
-
 USER steam
-
 ENTRYPOINT [ "/entrypoint.sh" ]
