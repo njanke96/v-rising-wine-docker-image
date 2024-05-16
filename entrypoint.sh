@@ -2,8 +2,9 @@
 GAME_DIR=/home/steam/Steam/steamapps/common/VRisingDedicatedServer
 
 onExit() {
-    kill -INT -$(ps -A | grep 'VRising' | awk '{print $1}') &>> /data/wtf
+    kill -INT -$(ps -A | grep 'VRising' | awk '{print $1}') &>> /dev/null
     wait $!
+    rm /tmp/.X0-lock
 }
 
 # Update?
