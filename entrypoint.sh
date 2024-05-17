@@ -11,7 +11,7 @@ onExit() {
     echo "Trapped shutdown signal, INT'ing server process $SERVER_PID" 
 
     if [ -n "$SERVER_PID" ]; then
-        kill -INT "$V_RISING_PID"
+        kill -INT "$SERVER_PID"
         
         # Wait for the process to terminate
         wait "$SERVER_PID"
@@ -32,7 +32,7 @@ cd $GAME_DIR
 Xvfb :0 -screen 0 1024x768x16 &
 setsid '/launch_server.sh' &
 
-BACKGROUND_PID=$!
+BACKGROUND_PID=$(pgrep 'VRisingServer' | awk '{print $1}')
 
 # Print the server process ID
 echo "Server running, PID: $BACKGROUND_PID"
