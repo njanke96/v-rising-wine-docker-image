@@ -52,14 +52,19 @@ To change game configuration, mount a volume to `/data` (see [Data location](#da
 
 ### Configuration specific to this image:
 
-| ENV                        | Default | Description                                                               |
-| -------------------------- | ------- | ------------------------------------------------------------------------- |
-| V_RISING_AUTOUPDATE        | true    | Enable auto-update of the dedicated server on container start.            |
+| ENV                       | Default | Description                                                                                                                                                                               |
+| ------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| V_RISING_AUTOUPDATE       | true    | Enable auto-update of the dedicated server on container start.                                                                                                                            |
+| V_RISING_SHUTDOWN_TIMEOUT | 60      | Time in seconts to wait for the server to shutdown cleanly. Make sure your Docker daemon's shutdown timeout is set to a higher value than this. See [Shutdown timeout](#shutdown-timeout) |
+
+# Shutdown timeout
+
+The default Docker daemon container shutdown timeout (the time before it force-kills a container) might not be long enough to allow the server to stop cleanly. See `shutdown-timeout` [here](https://docs.docker.com/reference/cli/dockerd/#daemon-configuration-file). It should be set to a value greater than `V_RISING_SHUTDOWN_TIMEOUT`.
 
 # Data location
 
 The persistence data folder within the container is /data. In order to have access to the save files for an easy backup, mount a folder to /data, the save files are located in the _Saves_ subfolder and the configuration files are saved in the subfolder _Settings_.
 
-
 # adminlist.txt and banlist.txt
-The adminlist.txt and banlist.txt files are located in the _/data/Settings_ folder. In there you can add your steamid to become and admin or add a steamid to the banlist. 
+
+The adminlist.txt and banlist.txt files are located in the _/data/Settings_ folder. In there you can add your steamid to become and admin or add a steamid to the banlist.
