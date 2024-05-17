@@ -3,19 +3,27 @@ GAME_DIR=/home/steam/Steam/steamapps/common/VRisingDedicatedServer
 
 cleanUp() {
     # If the server crashed this will prevent it from starting again.
-    rm /tmp/.X0-lock
+    rm /tmp/.X0-lock || 0
+    exit 0
 }
 
 onExit() {
     SERVER_PID=$(pgrep 'VRisingServer' | awk '{print $1}')
     echo "Trapped shutdown signal, INT'ing server process $SERVER_PID" 
+    kill -INT "$SERVER_PID"
 
-    if [ -n "$SERVER_PID" ]; then
-        kill -INT "$SERVER_PID"
-        
-        # Wait for the process to terminate
-        wait "$SERVER_PID"
-    fi
+    # Wait up to 120 seconds for the process to terminate
+    TIMEOUT=120
+    while [ $TIMEOUT -gt 0 ]; do
+        # Check if the process is still running
+        if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+	    echo "Clean shutdown."
+            break
+        fi
+
+        sleep 1
+        TIMEOUT=$((TIMEOUT - 1))
+    done
     
     cleanUp
 }
@@ -32,13 +40,5 @@ cd $GAME_DIR
 Xvfb :0 -screen 0 1024x768x16 &
 setsid '/launch_server.sh' &
 
-BACKGROUND_PID=$(pgrep 'VRisingServer' | awk '{print $1}')
-
-# Print the server process ID
-echo "Server running, PID: $BACKGROUND_PID"
-
-# Wait for the server process to finish
-wait $BACKGROUND_PID
-
-cleanUp
+wait $!
 
