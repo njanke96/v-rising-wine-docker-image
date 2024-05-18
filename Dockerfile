@@ -12,8 +12,8 @@ RUN apt-get install wine \
    tini \
    -y
 
-RUN dpkg --add-architecture i386 && apt-get update && apt-get install wine32 -y
-RUN apt-get install winbind -y
+RUN dpkg --add-architecture i386 && apt-get update
+RUN apt-get install wine32 winbind -y
 
 RUN mkdir /data
 RUN chown steam /data
@@ -28,6 +28,7 @@ RUN ./steamcmd.sh +@sSteamCmdForcePlatformType windows +login anonymous +app_upd
 
 # Not VR environment variables
 ENV V_RISING_AUTOUPDATE=true
+ENV V_RISING_SHUTDOWN_TIMEOUT=60
 
 # VR environment variables for host settings
 # https://github.com/StunlockStudios/vrising-dedicated-server-instructions/blob/master/1.0.x/INSTRUCTIONS.md
